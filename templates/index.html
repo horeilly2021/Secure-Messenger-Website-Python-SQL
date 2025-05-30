@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Communication System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body data-current-user="{{ session.get('user', 'Guest') }}">
+    <div class="container">
+        <!-- Logout Button -->
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <button class="nav-button active" data-page="workspace">Workspace</button>
+            <button class="nav-button" data-page="taskmanager">Task Manager</button>
+            <button class="nav-button" data-page="leaderboard">Leaderboard</button>
+            <button class="nav-button" data-page="schedule">Schedule</button>
+            <button class="nav-button" data-page="videocall">Video Call</button>
+            
+            <!-- Duck mascot -->
+            <div class="duck-mascot">
+                <img src="{{ url_for('static', filename='images/chicken.webp') }}" alt="Chicken mascot">
+            </div>
+            
+            <!-- Group Performance -->
+            <div class="group-performance">
+                <h3>Group's Progress</h3>
+                <div class="performance-bar">
+                    <div class="progress" style="width: 50%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Pages -->
+            <div class="page active" id="workspace">
+                <!-- Announcement Banner -->
+                <div class="announcement" contenteditable="false">
+                    Double-click to edit announcement
+                </div>
+
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <h2>Group Chat</h2>
+                    <button class="pinned-messages-btn">
+                        <i class="pin-icon">📌</i> Pinned Messages
+                    </button>
+                </div>
+
+                <!-- Message Context Menu -->
+                <div class="context-menu" id="message-menu">
+                    <button class="pin-message-btn">
+                        <i class="pin-icon">📌</i> Pin Message
+                    </button>
+                    <button class="translate-btn">
+                        <i class="translate-icon">🌐</i> Translate
+                    </button>
+                </div>
+
+                <!-- Pinned Messages Dialog -->
+                <div class="pinned-dialog" id="pinned-dialog">
+                    <div class="pinned-header">
+                        <h3>📌 Pinned Messages</h3>
+                        <button class="close-pinned">×</button>
+                    </div>
+                    <div class="pinned-content">
+                        <div class="pinned-messages-list">
+                            <!-- Pinned messages will be added here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="chat-area">
+                    <div class="messages">
+                        <div class="message">
+                            <span class="user">Alice:</span> Hi!
+                        </div>
+                        <div class="message">
+                            <span class="user">Bob:</span> What's up?
+                        </div>
+                        <div class="message">
+                            <span class="user">Charlie:</span> What are we gonna do today
+                        </div>
+                    </div>
+                    <div class="message-input">
+                        <input type="text" placeholder="Type your message...">
+                        <button>Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page" id="taskmanager">
+                <!-- Announcement Banner -->
+                <div class="announcement" contenteditable="false">
+                    Double-click to edit announcement
+                </div>
+
+                <!-- Task Manager Header -->
+                <div class="page-header">
+                    <h2>Task Manager</h2>
+                    <button class="add-task-btn">
+                        <i class="task-icon">✓</i> Add Task
+                    </button>
+                </div>
+
+                <div class="task-container">
+                    <div class="task-list">
+                        <div class="task-group">
+                            <h3>To Do</h3>
+                            <div class="tasks">
+                            </div>
+                        </div>
+
+                        <div class="task-group">
+                            <h3>In Progress</h3>
+                            <div class="tasks">
+                            </div>
+                        </div>
+
+                        <div class="task-group">
+                            <h3>Done</h3>
+                            <div class="tasks">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page" id="leaderboard">
+                <!-- Announcement Banner -->
+                <div class="announcement" contenteditable="false">
+                    Double-click to edit announcement
+                </div>
+
+                <!-- Leaderboard Header -->
+                <div class="page-header">
+                    <h2>Performance Leaderboard</h2>
+                    <div class="total-points">
+                        Total Group Points: <span class="points">42</span>
+                    </div>
+                </div>
+
+                <div class="leaderboard-container">
+                    <div class="leaderboard-list">
+                        <div class="member-card first-place">
+                            <div class="rank">1</div>
+                            <div class="member-info">
+                                <h3>Alice</h3>
+                                <div class="points-info">
+                                    <span class="points">15 points</span>
+                                    <div class="points-bar">
+                                        <div class="progress" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                <div class="tasks-completed">5 tasks completed</div>
+                            </div>
+                        </div>
+
+                        <div class="member-card second-place">
+                            <div class="rank">2</div>
+                            <div class="member-info">
+                                <h3>Joanna</h3>
+                                <div class="points-info">
+                                    <span class="points">12 points</span>
+                                    <div class="points-bar">
+                                        <div class="progress" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                                <div class="tasks-completed">4 tasks completed</div>
+                            </div>
+                        </div>
+
+                        <div class="member-card third-place">
+                            <div class="rank">3</div>
+                            <div class="member-info">
+                                <h3>Bob</h3>
+                                <div class="points-info">
+                                    <span class="points">8 points</span>
+                                    <div class="points-bar">
+                                        <div class="progress" style="width: 40%"></div>
+                                    </div>
+                                </div>
+                                <div class="tasks-completed">3 tasks completed</div>
+                            </div>
+                        </div>
+
+                        <div class="member-card">
+                            <div class="rank">4</div>
+                            <div class="member-info">
+                                <h3>Charlie</h3>
+                                <div class="points-info">
+                                    <span class="points">7 points</span>
+                                    <div class="points-bar">
+                                        <div class="progress" style="width: 35%"></div>
+                                    </div>
+                                </div>
+                                <div class="tasks-completed">2 tasks completed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page" id="schedule">
+                <!-- Announcement Banner -->
+                <div class="announcement" contenteditable="false">
+                    Double-click to edit announcement
+                </div>
+
+                <!-- Schedule Header -->
+                <div class="page-header">
+                    <h2>Group Schedule</h2>
+                    <div class="calendar-controls">
+                        <button class="prev-month">◀</button>
+                        <h3 class="current-month">March 2025</h3>
+                        <button class="next-month">▶</button>
+                    </div>
+                </div>
+
+                <div class="schedule-container">
+                    <div class="calendar">
+                        <div class="calendar-header">
+                            <div>Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                        </div>
+                        <div class="calendar-grid">
+                            <!-- Calendar days will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="availability-legend">
+                        <div class="legend-item">
+                            <div class="color-box available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-box unavailable"></div>
+                            <span>Unavailable</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-box meeting"></div>
+                            <span>Meeting Scheduled</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page" id="videocall">
+                <!-- Announcement Banner -->
+                <div class="announcement" contenteditable="false">
+                    Double-click to edit announcement
+                </div>
+
+                <!-- Video Call Header -->
+                <div class="page-header">
+                    <h2>Video Conference</h2>
+                    <button class="start-call-btn">
+                        <i class="video-icon">📹</i> Start New Call
+                    </button>
+                </div>
+
+                <div class="video-container">
+                    <div class="video-grid">
+                        <div class="video-participant main-video">
+                            <video id="localVideo" autoplay playsinline muted></video>
+                            <div class="participant-info">
+                                <span class="name">Joanna (You)</span>
+                                <div class="controls">
+                                    <button class="control-btn mic-btn" title="Mute/Unmute">
+                                        <i class="control-icon">🎤</i>
+                                    </button>
+                                    <button class="control-btn camera-btn" title="Turn Camera On/Off">
+                                        <i class="control-icon">📹</i>
+                                    </button>
+                                    <button class="control-btn screen-btn" title="Share Screen">
+                                        <i class="control-icon">💻</i>
+                                    </button>
+                                    <button class="control-btn leave-btn" title="Leave Call">
+                                        <i class="control-icon">📞</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="video-participant">
+                            <div class="placeholder-video">
+                                <div class="avatar">A</div>
+                                <span class="name">Alice</span>
+                            </div>
+                        </div>
+                        <div class="video-participant">
+                            <div class="placeholder-video">
+                                <div class="avatar">B</div>
+                                <span class="name">Bob</span>
+                            </div>
+                        </div>
+                        <div class="video-participant">
+                            <div class="placeholder-video">
+                                <div class="avatar">C</div>
+                                <span class="name">Charlie</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+            <!-- Tasks -->
+            <div class="your-tasks">
+                <h3>Your Tasks</h3>
+                <div class="task-list-vertical">
+                    <!-- Tasks will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Group Members -->
+            <div class="group-members">
+                <h3>Group members</h3>
+                <div class="member-list">
+                    <!-- Members will be dynamically populated by JavaScript -->
+                </div>
+                <!-- Report Context Menu -->
+                <div class="context-menu" id="report-menu">
+                    <button class="report-button">
+                        <i class="report-icon">⚠️</i> Report User
+                    </button>
+                </div>
+
+                <!-- Report Dialog -->
+                <div class="report-dialog" id="report-dialog">
+                    <div class="report-header">
+                        Report User: <span class="reported-user"></span>
+                        <button class="close-report">×</button>
+                    </div>
+                    <div class="report-content">
+                        <textarea placeholder="Please describe the reason for reporting..."></textarea>
+                        <button class="submit-report">Submit Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Creation Dialog -->
+        <div class="modal" id="task-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Create New Task</h3>
+                    <button class="close-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="task-form">
+                        <div class="form-group">
+                            <label for="task-name">Name <span class="required">*</span></label>
+                            <input type="text" id="task-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-description">Description <span class="required">*</span></label>
+                            <textarea id="task-description" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-points">Points <span class="required">*</span></label>
+                            <select id="task-points" required>
+                                <option value="">Select points</option>
+                                <option value="1">1 - Easy</option>
+                                <option value="2">2 - Medium</option>
+                                <option value="3">3 - Hard</option>
+                                <option value="5">5 - Very Hard</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-due-date">Due Date <span class="required">*</span></label>
+                            <input type="date" id="task-due-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-assignee">Assign To</label>
+                            <select id="task-assignee">
+                                <option value="">Unassigned</option>
+                                <!-- Assignee options will be dynamically populated by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Create Task</button>
+                            <button type="button" class="btn-secondary close-modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Context Menu -->
+        <div class="context-menu" id="task-context-menu">
+            <button class="edit-task-btn">✏️ Edit Task</button>
+            <button class="delete-task-btn">🗑️ Delete Task</button>
+        </div>
+
+        <!-- Private Message Dialogs Container -->
+        <div class="pm-dialogs"></div>
+        <div class="chicken-chat"></div>
+
+        <!-- Chicken Chat Dialog Template -->
+        <template id="chicken-dialog-template">
+            <div class="chicken-dialog" style="display: none;">
+                <div class="chicken-header">
+                    <span class="chicken-title">Chat with Chicken</span>
+                    <button class="chicken-close">&times;</button>
+                </div>
+                <div class="chicken-messages"></div>
+                <div class="chicken-input">
+                    <input type="text" placeholder="Ask the chicken something...">
+                    <button>Send</button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Private Message Dialog Template -->
+        <template id="pm-dialog-template">
+            <div class="pm-dialog" style="display: none;">
+                <div class="pm-header">
+                    <span class="pm-title">Chat with <span class="pm-user"></span></span>
+                    <button class="pm-close">&times;</button>
+                </div>
+                <div class="pm-messages"></div>
+                <div class="pm-input">
+                    <input type="text" placeholder="Type your message...">
+                    <button>Send</button>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
